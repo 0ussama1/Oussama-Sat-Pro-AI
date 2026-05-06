@@ -15,6 +15,8 @@ import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as DocumentPicker from "expo-document-picker";
 import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
+import { useFlashHistory } from "@/hooks/useFlashHistory";
+import { FlashHistoryList } from "@/components/FlashHistoryList";
 
 declare global {
   interface Navigator {
@@ -54,6 +56,7 @@ const supportsWebSerial =
 export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const { history, loading: historyLoading, addRecord, clearHistory } = useFlashHistory();
 
   const [selectedFile, setSelectedFile] = useState<SelectedFile | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>("scanning");
@@ -188,14 +191,29 @@ export default function HomeScreen() {
       setFlashProgress(100);
       setStatusText("IA: Update complete ✓");
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      await addRecord({
+        fileName: selectedFile!.name,
+        fileSize: selectedFile!.size,
+        status: "success",
+        progressReached: 100,
+        deviceInfo: portRef ? `USB @ ${BAUD_RATE} baud` : "Simulated",
+      });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Flash failed";
       setFlashStatus("error");
       setErrorMsg(msg);
       setStatusText("IA: Flash error");
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      await addRecord({
+        fileName: selectedFile!.name,
+        fileSize: selectedFile!.size,
+        status: "error",
+        errorMessage: msg,
+        progressReached: flashProgress,
+        deviceInfo: portRef ? `USB @ ${BAUD_RATE} baud` : "Simulated",
+      });
     }
-  }, [isReady, portRef, selectedFile]);
+  }, [isReady, portRef, selectedFile, addRecord, flashProgress]);
 
   const resetFlash = useCallback(() => {
     setFlashStatus("idle");
@@ -422,6 +440,13 @@ export default function HomeScreen() {
               : "Native mode — USB OTG requires custom Expo build"}
           </Text>
         </View>
+
+        {/* Flash History */}
+        <FlashHistoryList
+          history={history}
+          loading={historyLoading}
+          onClear={clearHistory}
+        />
       </ScrollView>
     </View>
   );
