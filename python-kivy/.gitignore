@@ -11,3 +11,6 @@ __pycache__/
 # Keystore and credentials — back these up somewhere safe offline
 release.keystore
 .keystore.env
+key.txt
+*.keystore
+*.jks
