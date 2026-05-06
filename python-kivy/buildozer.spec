@@ -3,7 +3,7 @@
 # (str) Titre de votre application
 title = OUSSAMA SAT PRO AI
 
-# (str) Nom du package (identifiant unique)
+# (str) Nom du package
 package.name = oussamasatproai
 
 # (str) Domaine du package
@@ -19,10 +19,10 @@ source.include_exts = py,png,jpg,kv,atlas,ttf
 source.exclude_dirs = tests, bin, .buildozer, __pycache__, .git
 
 # (str) Version de l'application
-# Passage à 1.1 pour assurer un rafraîchissement complet
-version = 1.1
+# CHANGEMENT : Version 1.2 pour forcer un build propre
+version = 1.2
 
-# (list) Dépendances (Core + USB Serial pour le matériel SAT)
+# (list) Dépendances (Core + USB Serial pour matériel SAT)
 requirements = python3, kivy==2.3.0, kivymd==1.2.0, pyjnius, plyer, pyserial, usb4a, usbserial4a, android
 
 # (str) Orientation
@@ -47,7 +47,7 @@ android.minapi = 21
 android.ndk = 25b
 android.sdk = 33
 
-# --- FIX AIDL: Forcer la version stable des build-tools ---
+# --- FIX CRITIQUE: Fixer les build-tools pour éviter l'erreur AIDL ---
 android.build_tools_version = 33.0.2
 
 # (bool) Accepter les licences SDK
