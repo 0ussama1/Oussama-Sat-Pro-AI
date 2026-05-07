@@ -10,9 +10,9 @@ requirements = python3==3.11.0, hostpython3==3.11.0, kivy==2.3.0, requests, cert
 orientation = portrait
 fullscreen = 0
 android.archs = arm64-v8a
-android.api = 31
+android.api = 33
 android.minapi = 21
-android.ndk = 23b
+android.ndk = 25b
 android.allow_backup = True
 p4a.branch = master
 android.release_artifact = apk
