@@ -5,13 +5,13 @@ package.domain = org.oussama
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 version = 0.1
-requirements = python3,kivy==2.3.0,hostpython3==3.11.0,requests,certifi
+# تقليل المتطلبات للحد الأدنى لضمان النجاح
+requirements = python3,kivy==2.3.0,requests,certifi
 orientation = portrait
 android.archs = arm64-v8a
-android.api = 34
+android.api = 31
 android.minapi = 21
-android.ndk = 26b
-android.build_tools_version = 34.0.0
+android.ndk = 25b
 android.accept_sdk_license = True
 android.enable_androidx = True
 p4a.branch = master
