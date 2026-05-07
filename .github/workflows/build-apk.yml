@@ -1,4 +1,4 @@
-name: Oussama Sat Ultimate Success
+name: Oussama Sat Final Force
 on:
   push:
     branches: [ main ]
@@ -9,6 +9,12 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+      
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -18,17 +24,18 @@ jobs:
           sudo apt update
           sudo apt install -y git zip unzip autoconf libtool pkg-config zlib1g-dev           libncurses5-dev libncursesw5-dev libtinfo6 cmake libffi-dev libssl-dev           lib32z1 lib32ncurses6 lib32stdc++6
           pip install --upgrade pip
-          pip install buildozer cython==0.29.33 kivy==2.3.0
+          pip install buildozer cython==0.29.33
 
-      - name: Build with Debug Mode
+      - name: Build APK
         run: |
-          # بناء مباشر بدون تنظيف لضمان سرعة الوصول للهدف
+          # تنظيف داخلي سريع وبناء
+          buildozer android clean
           yes | buildozer android debug
         env:
           APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
 
-      - name: Upload Finished APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Oussama-Sat-Final-App
+          name: Oussama-Sat-App-v21
           path: bin/*.apk
