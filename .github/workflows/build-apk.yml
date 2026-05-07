@@ -20,23 +20,22 @@ jobs:
         with:
           python-version: "3.11"
       
-      - name: Install System Tools
+      - name: Install System Libraries
         run: |
           sudo apt update
           sudo apt install -y git zip unzip autoconf libtool pkg-config zlib1g-dev           libncurses5-dev libncursesw5-dev libtinfo6 cmake libffi-dev libssl-dev           lib32z1 lib32ncurses6 lib32stdc++6
           pip install --upgrade pip
           pip install buildozer cython==0.29.33
 
-      - name: Build APK
+      - name: Build APK (Normal Mode)
         run: |
-          # تنظيف كامل للمخلفات السابقة لضمان عدم تكرار خطأ autoreconf
-          buildozer android clean
+          # لاحظ حذفنا كلمة clean تماماً لتجاوز خطأ FileNotFound
           yes | buildozer android debug
         env:
           APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
 
-      - name: Upload APK
+      - name: Upload Final APK
         uses: actions/upload-artifact@v4
         with:
-          name: Oussama-Sat-Final-App
+          name: Oussama-Sat-App
           path: bin/*.apk

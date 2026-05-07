@@ -5,7 +5,6 @@ package.domain = org.oussama
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 version = 0.1
-# تقليل المتطلبات للحد الأدنى لضمان النجاح
 requirements = python3,kivy==2.3.0,requests,certifi
 orientation = portrait
 android.archs = arm64-v8a
