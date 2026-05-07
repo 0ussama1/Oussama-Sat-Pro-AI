@@ -5,20 +5,20 @@ package.domain = org.oussama
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 version = 0.1
-# استخدام نسخ محددة تمنع تعارض الـ autoconf
-requirements = python3==3.11.0, hostpython3==3.11.0, kivy==2.3.0, requests, certifi, openssl
+requirements = python3,kivy==2.3.0,hostpython3==3.11.0,requests,certifi
 orientation = portrait
+osx.python_version = 3
+osx.kivy_version = 1.9.1
 fullscreen = 0
 android.archs = arm64-v8a
-android.api = 30
+android.api = 31
 android.minapi = 21
-android.ndk = 21.4.7075529
-android.allow_backup = True
+android.ndk = 25b
+android.skip_update = False
+android.accept_sdk_license = True
+android.enable_androidx = True
 p4a.branch = master
-android.release_artifact = apk
-android.debug_artifact = apk
 
 [buildozer]
 log_level = 2
 warn_on_root = 1
-android.build_mode = debug
