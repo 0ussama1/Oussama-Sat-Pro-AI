@@ -7,14 +7,11 @@ source.include_exts = py,png,jpg,kv,atlas
 version = 0.1
 requirements = python3,kivy==2.3.0,hostpython3==3.11.0,requests,certifi
 orientation = portrait
-osx.python_version = 3
-osx.kivy_version = 1.9.1
-fullscreen = 0
 android.archs = arm64-v8a
-android.api = 31
+android.api = 34
 android.minapi = 21
-android.ndk = 25b
-android.skip_update = False
+android.ndk = 26b
+android.build_tools_version = 34.0.0
 android.accept_sdk_license = True
 android.enable_androidx = True
 p4a.branch = master
