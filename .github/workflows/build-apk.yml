@@ -1,6 +1,7 @@
 name: Build & Sign APK
 
 on:
+  workflow_dispatch:
   push:
     branches: [main, master]
     tags:
@@ -11,6 +12,7 @@ on:
     inputs:
       release:
         description: "Create a GitHub Release with the APK?"
+  workflow_dispatch:
         required: false
         default: "false"
         type: boolean
@@ -19,6 +21,7 @@ jobs:
   build:
     name: Buildozer — Android Release APK
     runs-on: ubuntu-22.04
+  workflow_dispatch:
 
     steps:
       # ── 1. Checkout ──────────────────────────────────────────────────────
@@ -30,13 +33,16 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: "17"
+  workflow_dispatch:
           distribution: "temurin"
+  workflow_dispatch:
 
       # ── 3. Python ────────────────────────────────────────────────────────
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+  workflow_dispatch:
 
       # ── 4. System dependencies needed by python-for-android / Buildozer ──
       - name: Install system dependencies
