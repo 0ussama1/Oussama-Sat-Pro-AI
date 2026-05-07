@@ -1,4 +1,4 @@
-name: Oussama Sat Final Success
+name: Oussama Sat Ultimate Success
 on:
   push:
     branches: [ main ]
@@ -13,22 +13,22 @@ jobs:
         with:
           python-version: "3.11"
       
-      - name: Install Critical Tools
+      - name: System Preparation
         run: |
           sudo apt update
-          sudo apt install -y git zip unzip autoconf libtool pkg-config zlib1g-dev           libncurses5-dev libncursesw5-dev libtinfo6 cmake libffi-dev libssl-dev           lib32z1 lib32ncurses6 lib32stdc++6 # هذه هي المكتبات التي كانت تنقص aidl
+          sudo apt install -y git zip unzip autoconf libtool pkg-config zlib1g-dev           libncurses5-dev libncursesw5-dev libtinfo6 cmake libffi-dev libssl-dev           lib32z1 lib32ncurses6 lib32stdc++6
           pip install --upgrade pip
-          pip install buildozer cython==0.29.33
+          pip install buildozer cython==0.29.33 kivy==2.3.0
 
-      - name: Build APK (No Clean)
+      - name: Build with Debug Mode
         run: |
-          # لاحظ حذفنا أمر clean الذي سبب مشكلة الصورة الأخيرة
+          # بناء مباشر بدون تنظيف لضمان سرعة الوصول للهدف
           yes | buildozer android debug
         env:
           APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
 
-      - name: Upload APK
+      - name: Upload Finished APK
         uses: actions/upload-artifact@v4
         with:
-          name: Oussama-Sat-App-Ready
+          name: Oussama-Sat-Final-App
           path: bin/*.apk
