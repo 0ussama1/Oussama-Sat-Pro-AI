@@ -9,11 +9,15 @@ requirements = python3,kivy==2.3.0,kivymd==1.2.0,pyserial,plyer,usb4a,usbserial4
 orientation = portrait
 fullscreen = 0
 android.permissions = USB_PERMISSION, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE, INTERNET, MANAGE_EXTERNAL_STORAGE
+
+# الإصدارات المستقرة لتفادي خطأ Aidl
 android.api = 33
 android.minapi = 21
 android.ndk = 25b
+android.build_tools_version = 33.0.0
+android.accept_sdk_license = True
 android.archs = arm64-v8a, armeabi-v7a
-android.allow_backup = True
+
 android.manifest.intent_filters = [ {"action": "android.hardware.usb.action.USB_DEVICE_ATTACHED"} ]
 
 [buildozer]

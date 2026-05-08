@@ -16,7 +16,9 @@ jobs:
           pip install --upgrade pip
           pip install Cython==0.29.33 buildozer
       - name: Build with Buildozer
-        run: buildozer android release
+        run: |
+          # أمر سحري لقبول جميع تراخيص أندرويد تلقائياً
+          yes | buildozer android debug
         env:
           ACCEPT_SDK_LICENSE: "yes"
       - name: Upload APK
