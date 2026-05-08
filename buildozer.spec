@@ -9,10 +9,10 @@ requirements = python3,kivy==2.3.0,kivymd==1.2.0,pyserial,plyer,usb4a,usbserial4
 orientation = portrait
 android.permissions = USB_PERMISSION, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE, INTERNET
 # الأساس الذهبي المستقر
-android.api = 31
+android.api = 33
 android.minapi = 21
-android.ndk = 23b
-android.build_tools_version = 31.0.0
+android.ndk = 25b
+android.build_tools_version = 33.0.0
 android.accept_sdk_license = True
 android.archs = arm64-v8a
 [buildozer]

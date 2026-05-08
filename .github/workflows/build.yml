@@ -17,9 +17,9 @@ jobs:
           pip install Cython==0.29.33 buildozer
       - name: Build with Buildozer
         run: |
-          # الأساس الجديد: متغيرات بيئة تضمن تخطي حوار التراخيص
           export APP_ANDROID_ACCEPT_SDK_LICENSE=1
-          export BUILDOZER_ALLOW_ORG_NAME_START=1
+          # مسح التراخيص القديمة لإجبار النظام على استخدام NDK 25b الجديد
+          rm -rf ~/.buildozer/android/platform/android-sdk/licenses
           buildozer android debug
         env:
           ACCEPT_SDK_LICENSE: "yes"
