@@ -17,8 +17,9 @@ jobs:
           pip install Cython==0.29.33 buildozer
       - name: Build with Buildozer
         run: |
-          # الأساس الجديد: قبول صامت وشامل للتراخيص
+          # الأساس الجديد: متغيرات بيئة تضمن تخطي حوار التراخيص
           export APP_ANDROID_ACCEPT_SDK_LICENSE=1
+          export BUILDOZER_ALLOW_ORG_NAME_START=1
           buildozer android debug
         env:
           ACCEPT_SDK_LICENSE: "yes"
