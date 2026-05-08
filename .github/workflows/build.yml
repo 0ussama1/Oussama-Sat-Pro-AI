@@ -7,20 +7,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python
+      
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install dependencies
+          
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libffi-dev libssl-dev python3-setuptools
+          
+      - name: Install Python Tools
         run: |
           pip install --upgrade pip
           pip install Cython==0.29.33 buildozer
+          
       - name: Build with Buildozer
         run: |
-          # أمر سحري لقبول جميع تراخيص أندرويد تلقائياً
+          # الأساس الجديد: قبول التراخيص وبدء البناء النظيف
           yes | buildozer android debug
         env:
           ACCEPT_SDK_LICENSE: "yes"
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
