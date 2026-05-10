@@ -6,6 +6,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libtool autoconf automake pkg-config unzip build-essential
+
+      - name: Install Buildozer
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install buildozer==1.5.0 python-for-android==2023.06.06 Cython==0.29.33
+
       - name: Cache Buildozer
         uses: actions/cache@v4
         with:
@@ -14,12 +24,14 @@ jobs:
             ~/.android
           key: buildozer-v3.6-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
 
-      - name: Install Buildozer
-        run: |
-          pip install --upgrade pip setuptools wheel
-          pip install buildozer python-for-android Cython==0.29.33
-
       - name: Build APK
         run: |
           export APP_ANDROID_ACCEPT_SDK_LICENSE=1
           buildozer -v android debug
+
+      - name: Upload APK to Releases
+        uses: softprops/action-gh-release@v1
+        with:
+          files: bin/*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
