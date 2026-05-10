@@ -1,104 +1,133 @@
-# كود التطبيق مع كل الأزرار والوظائف
-from kivy.app import App
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
-from kivy.uix.label import Label
-from kivy.uix.textinput import TextInput
-from kivy.uix.progressbar import ProgressBar
-from kivy.uix.filechooser import FileChooserIconView
-from kivy.uix.popup import Popup
-from usbserial4a import serial4a
-import threading
+# تطبيق OUSSAMA SAT PRO AI v3.6
+# يحتوي على كل الأزرار والوظائف: Browse, Scan USB, Read Flash, Erase Chip, Start Flash
+# + Save Logs, Ping Device, Device Info, Stop Process
 
-class FlashUI(BoxLayout):
+from kivymd.app import MDApp
+from kivy.lang import Builder
+from kivymd.uix.filemanager import MDFileManager
+from android.permissions import request_permissions, Permission
+from usbserial4a import serial4a
+import os, threading
+
+KV = '''
+MDScreen:
+    md_bg_color: [0.05, 0.1, 0.15, 1]
+    MDBoxLayout:
+        orientation: 'vertical'
+        padding: "15dp"
+        spacing: "10dp"
+        
+        MDLabel:
+            text: "OUSSAMA SAT PRO AI v3.6"
+            halign: "center"
+            theme_text_color: "Custom"
+            text_color: [0, 0.8, 1, 1]
+            size_hint_y: None
+            height: "40dp"
+
+        MDCard:
+            size_hint_y: None
+            height: "60dp"
+            md_bg_color: [0.1, 0.15, 0.2, 1]
+            MDLabel:
+                id: status_label
+                text: "Status: Ready"
+                halign: "center"
+
+        MDRaisedButton:
+            text: "📁 BROWSE INTERNAL STORAGE"
+            size_hint_x: 1
+            on_release: app.file_manager_open()
+
+        MDGridLayout:
+            cols: 2
+            spacing: "10dp"
+            size_hint_y: None
+            height: "150dp"
+            MDRaisedButton:
+                text: "SCAN USB PORTS"
+                on_release: app.scan_usb_ports()
+            MDRaisedButton:
+                text: "START FLASH"
+                on_release: app.start_flash()
+            MDRaisedButton:
+                text: "READ FLASH"
+                on_release: app.read_flash()
+            MDRaisedButton:
+                text: "ERASE CHIP"
+                on_release: app.erase_chip()
+
+        MDGridLayout:
+            cols: 2
+            spacing: "10dp"
+            size_hint_y: None
+            height: "150dp"
+            MDRaisedButton:
+                text: "SAVE LOGS"
+                on_release: app.save_logs()
+            MDRaisedButton:
+                text: "PING DEVICE"
+                on_release: app.ping_device()
+            MDRaisedButton:
+                text: "DEVICE INFO"
+                on_release: app.device_info()
+            MDRaisedButton:
+                text: "STOP PROCESS"
+                on_release: app.stop_process()
+
+        MDCard:
+            md_bg_color: [0, 0, 0, 0.4]
+            ScrollView:
+                MDLabel:
+                    id: log_output
+                    text: "--- Log System ---"
+                    font_style: "Caption"
+                    size_hint_y: None
+                    height: self.texture_size[1]
+'''
+
+class OussamaSatApp(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.orientation = "vertical"
-
-        self.add_widget(Label(text="OUSSAMA SAT PRO AI v3.3", font_size=22))
-
-        # أزرار أساسية
-        self.add_btn("BROWSE ALL FILES", self.browse_files)
-        self.add_btn("SCAN USB", self.scan_usb)
-        self.add_btn("READ FLASH", self.read_flash)
-        self.add_btn("ERASE CHIP", self.erase_chip)
-        self.add_btn("START FLASH", self.start_flash)
-
-        # أزرار إضافية
-        self.add_btn("SAVE LOGS", self.save_logs)
-        self.add_btn("PING DEVICE", self.ping_device)
-        self.add_btn("CONNECTION SETTINGS", self.connection_settings)
-        self.add_btn("DEVICE INFO", self.device_info)
-        self.add_btn("STOP PROCESS", self.stop_process)
-
-        self.status = Label(text="USB Status: Waiting...")
-        self.add_widget(self.status)
-
-        self.progress = ProgressBar(max=100, value=0)
-        self.add_widget(self.progress)
-
-        self.log = TextInput(readonly=True, size_hint=(1,0.3))
-        self.add_widget(self.log)
-
-        self.selected_port = None
+        self.file_manager = MDFileManager(
+            exit_manager=lambda x: self.file_manager.close(),
+            select_path=self.select_path,
+            ext=['.bin', '.abs', '.cfg', '.dmp']
+        )
         self.selected_file = None
         self.running = False
         self.baudrate = 115200
 
-    def add_btn(self, text, func):
-        btn = Button(text=text)
-        btn.bind(on_press=func)
-        self.add_widget(btn)
+    def build(self):
+        request_permissions([Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE])
+        return Builder.load_string(KV)
 
-    def browse_files(self, instance):
-        chooser = FileChooserIconView()
-        popup = Popup(title="اختر ملف BIN", content=chooser, size_hint=(0.9,0.9))
-        chooser.bind(on_submit=lambda chooser, selection, touch: self.set_file(selection, popup))
-        popup.open()
+    def file_manager_open(self):
+        self.file_manager.show("/storage/emulated/0")
 
-    def set_file(self, selection, popup):
-        if selection:
-            self.selected_file = selection[0]
-            self.add_log(f"📂 ملف مختار: {self.selected_file}")
-        popup.dismiss()
+    def select_path(self, path):
+        self.file_manager.close()
+        self.selected_file = path
+        self.update_log(f"Selected File: {os.path.basename(path)}")
 
-    def scan_usb(self, instance):
-        ports = serial4a.get_serial_ports()
-        if ports:
-            self.selected_port = ports[0]
-            self.status.text = f"✅ USB détecté: {self.selected_port}"
-            self.add_log(f"Port trouvé: {self.selected_port}")
-        else:
-            self.status.text = "❌ Aucun périphérique USB"
-            self.add_log("USB non détecté")
-
-    def read_flash(self, instance):
-        if not self.selected_port:
-            self.add_log("⚠️ Aucun port USB sélectionné")
-            return
+    def scan_usb_ports(self):
         try:
-            ser = serial4a.Serial(port=self.selected_port, baudrate=self.baudrate, timeout=1)
-            data = ser.read(256)
-            self.add_log(f"📖 Données lues: {data}")
-            ser.close()
+            ports = serial4a.get_serial_ports()
+            if ports:
+                self.root.ids.status_label.text = f"✅ Found: {len(ports)} Port(s)"
+                for p in ports: self.update_log(f"Found: {p}")
+                self.selected_port = ports[0]
+            else:
+                self.update_log("❌ No USB Ports detected. Check OTG!")
         except Exception as e:
-            self.add_log(f"⚠️ Erreur lecture: {e}")
+            self.update_log(f"Error: {str(e)}")
 
-    def erase_chip(self, instance):
-        if not self.selected_port:
-            self.add_log("⚠️ Aucun port USB sélectionné")
+    def start_flash(self):
+        if not self.selected_file:
+            self.update_log("⚠️ No file selected")
             return
-        try:
-            ser = serial4a.Serial(port=self.selected_port, baudrate=self.baudrate, timeout=1)
-            ser.write(b"ERASE\n")
-            self.add_log("🧹 Effacement demandé")
-            ser.close()
-        except Exception as e:
-            self.add_log(f"⚠️ Erreur effacement: {e}")
-
-    def start_flash(self, instance):
-        if not self.selected_file or not self.selected_port:
-            self.add_log("⚠️ Sélectionner fichier et port USB d'abord")
+        if not hasattr(self, "selected_port"):
+            self.update_log("⚠️ No USB port selected")
             return
         self.running = True
         threading.Thread(target=self.flash_process).start()
@@ -113,55 +142,72 @@ class FlashUI(BoxLayout):
             sent = 0
             for i in range(0, total, chunk_size):
                 if not self.running:
-                    self.add_log("⏹ عملية توقفت")
+                    self.update_log("⏹ Process stopped")
                     break
                 chunk = data[i:i+chunk_size]
                 ser.write(chunk)
                 sent += len(chunk)
-                self.progress.value = int((sent/total)*100)
-                self.add_log(f"Envoyé {sent}/{total} octets")
+                self.root.ids.status_label.text = f"Sent {sent}/{total} bytes"
+                self.update_log(f"Chunk {i//chunk_size}: {len(chunk)} bytes")
             ser.close()
-            self.add_log("🚀 Fichier envoyé avec succès")
+            self.update_log("🚀 Flash completed successfully!")
         except Exception as e:
-            self.add_log(f"⚠️ Erreur: {e}")
+            self.update_log(f"⚠️ Flash error: {str(e)}")
 
-    def save_logs(self, instance):
+    def read_flash(self):
+        if not hasattr(self, "selected_port"):
+            self.update_log("⚠️ No USB port selected")
+            return
+        try:
+            ser = serial4a.Serial(port=self.selected_port, baudrate=self.baudrate, timeout=1)
+            data = ser.read(256)
+            self.update_log(f"📖 Read: {data}")
+            ser.close()
+        except Exception as e:
+            self.update_log(f"⚠️ Read error: {str(e)}")
+
+    def erase_chip(self):
+        if not hasattr(self, "selected_port"):
+            self.update_log("⚠️ No USB port selected")
+            return
+        try:
+            ser = serial4a.Serial(port=self.selected_port, baudrate=self.baudrate, timeout=1)
+            ser.write(b"ERASE\n")
+            self.update_log("🧹 Erase command sent")
+            ser.close()
+        except Exception as e:
+            self.update_log(f"⚠️ Erase error: {str(e)}")
+
+    def save_logs(self):
         try:
             with open("logs.txt", "w") as f:
-                f.write(self.log.text)
-            self.add_log("💾 Logs sauvegardés dans logs.txt")
+                f.write(self.root.ids.log_output.text)
+            self.update_log("💾 Logs saved to logs.txt")
         except Exception as e:
-            self.add_log(f"⚠️ Erreur sauvegarde: {e}")
+            self.update_log(f"⚠️ Save error: {str(e)}")
 
-    def ping_device(self, instance):
-        if not self.selected_port:
-            self.add_log("⚠️ Aucun port USB sélectionné")
+    def ping_device(self):
+        if not hasattr(self, "selected_port"):
+            self.update_log("⚠️ No USB port selected")
             return
         try:
             ser = serial4a.Serial(port=self.selected_port, baudrate=self.baudrate, timeout=1)
             ser.write(b"PING\n")
             reply = ser.read(64)
-            self.add_log(f"📡 Réponse: {reply}")
+            self.update_log(f"📡 Reply: {reply}")
             ser.close()
         except Exception as e:
-            self.add_log(f"⚠️ Erreur ping: {e}")
+            self.update_log(f"⚠️ Ping error: {str(e)}")
 
-    def connection_settings(self, instance):
-        self.add_log(f"⚙️ Baudrate actuel: {self.baudrate}")
+    def device_info(self):
+        self.update_log("ℹ️ Device Info (simulation): Version 1.0, Flash 4MB")
 
-    def device_info(self, instance):
-        self.add_log("ℹ️ Info device (simulation): Version 1.0, Flash 4MB")
-
-    def stop_process(self, instance):
+    def stop_process(self):
         self.running = False
-        self.add_log("⏹ عملية الإرسال توقفت")
+        self.update_log("⏹ Process stopped by user")
 
-    def add_log(self, message):
-        self.log.text += message + "\n"
-
-class MyApp(App):
-    def build(self):
-        return FlashUI()
+    def update_log(self, msg):
+        self.root.ids.log_output.text += f"\n> {msg}"
 
 if __name__ == "__main__":
-    MyApp().run()
+    OussamaSatApp().run()
